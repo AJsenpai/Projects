@@ -1,0 +1,4 @@
+1. open .bat file and replace the python file path 
+2. once done open the .bat file and wait for a min or so until the game loads
+3. use numpad for moves on the board
+4. Enjoy!!
