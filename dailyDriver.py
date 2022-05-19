@@ -1,5 +1,7 @@
 import json, requests, sys
 from pprint import pprint
+import os
+import time
 
 
 def weatherReport():
@@ -38,6 +40,25 @@ def weatherReport():
         print(format(celcius, ".1f") + chr(176) + "C", end="\t")
         print(i["weather"][0]["description"])
         print()
+
+
+def jokes():
+    url = "https://v2.jokeapi.dev/joke/Any"
+    payload = {}
+    headers = {}
+
+    # response = requests.get(url, headers=headers, data=payload)
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    if response.status_code != 200:
+        print(response.status_code)
+    data = response.json()
+
+    if data["type"] == "twopart":
+        print(data["setup"])
+        print(data["delivery"])
+    else:
+        print(data["joke"])
 
 
 def countries():
@@ -106,14 +127,24 @@ def countries():
     print()
 
 
-print(
+def displayMenu():
+    print(
+        """
+    1. Country Details
+    2. Weather Report
+    3. Url Shortner
+    4. Joke
+    5: Exit
     """
-1. Country Details
-2. Weather Report
-3. Url Shortner
-"""
-)
-mapping = {1: countries, 2: weatherReport}
-choice = int(input("what do you want to check?"))
-mapping[choice]()
+    )
 
+
+while True:
+    os.system("cls")
+    displayMenu()
+    mapping = {1: countries, 2: weatherReport, 4: jokes, 5: "exit"}
+    choice = int(input("what do you want to check?"))
+    if choice == 5:
+        sys.exit()
+    mapping[choice]()
+    time.sleep(5)
