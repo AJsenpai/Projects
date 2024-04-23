@@ -114,4 +114,24 @@ $form.Controls.Add($refreshButton)
 function Refresh-DataGridView {
     $dataGridView.Rows.Clear()
     $services = Invoke-Command -ComputerName $serverTextBox.Text -ScriptBlock {
-        Get-Service | Select-Object DisplayName, @{Name="Status";
+        Get-Service | Select-Object DisplayName, @{Name="Status"; Expression={if($_.Status -eq "Running"){ "Running" } elseif($_.Status -eq "Stopped"){ "Stopped" } elseif($_.Status -eq "Paused"){ "Paused" } else { "Unknown" }}}, @{Name="Type"; Expression={if($_.ServiceType -eq "Win32OwnProcess"){ "Own Process" } elseif($_.ServiceType -eq "Win32ShareProcess"){ "Shared Process" } else { "Kernel Driver" }}}, ID
+    }
+    foreach ($service in $services) {
+        $servicePID = (Get-WmiObject Win32_Service -ComputerName $serverTextBox.Text | Where-Object {$_.Name -eq $service.DisplayName}).ProcessID
+        $dataGridView.Rows.Add($service.DisplayName, $service.Status, $service.Type, $servicePID)
+    }
+}
+
+# Function to connect to the remote server and refresh DataGridView
+function Connect-ToServer {
+    Refresh-DataGridView
+}
+
+# Function to perform service management task on the remote server
+function Perform-ServiceTask {
+    param(
+        [string]$Action
+    )
+    if ($dataGridView.SelectedRows.Count -eq 0) {
+        [System.Windows.Forms.MessageBox]::Show("Please select a service.", "Error", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error)
+        return
